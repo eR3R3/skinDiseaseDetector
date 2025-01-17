@@ -1,0 +1,3 @@
+age,diameter_1,diameter_2,gender,smoke,drink,region,grew,changed,pesticide,skin_cancer_history,cancer_history,has_sewage_system,fitspatrick,itch,hurt,bleed,biopsed,has_piped_water
+45,2.5,1.8,女,False,False,Region1,False,False,False,False,False,False,False,False,False,False,False,False
+45,2.5,1.8,女,False,False,Region1,False,False,False,False,False,False,False,False,False,False,False,False
