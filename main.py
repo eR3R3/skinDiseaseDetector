@@ -29,33 +29,49 @@ class ImageFolderWithName(datasets.ImageFolder):
         filename = os.path.basename(path)
         return sample, target, filename
 
+def generate_unique_number():
+    while True:
+        # 生成 10 位的随机数
+        num = random.randint(10**9, 10**10 - 1)
+        if num not in generated_numbers:
+            generated_numbers.add(num)
+            return num
+
 app = FastAPI()
 
 IMAGE_SAVE_DIR = "/"
+CSV_SAVEDIR = "/"
 
 @app.post("/process")
 async def process(req):
     img = req.img
     data = img.data
+
     if data["gender"] == "女":
         data["gender"] = "Female"
     elif data["gender"] == "男":
         data["gender"] = "Male"
-
-    # 转换布尔值为首字母大写
     for key, value in data.items():
         if isinstance(value, bool):
             data[key] = "True" if value else "False"
+
     img_path = os.path.join(IMAGE_SAVE_DIR, img.filename)
     with open(img_path, "wb") as f:
         f.write(await img.read())
     print(f"Image saved at: {img_path}")
 
-    image_path = "/root/autodl-tmp/preModel/train/normal/3321234.jpg"
-    df_test = pd.read_csv("/root/autodl-tmp/dataset/skinDisease_split/test.csv")
-    df_train = pd.read_csv("/root/autodl-tmp/dataset/skinDisease_split/train.csv")
-    sta = torch.load('/root/code_file/MedMamba/MultiMedmambaLargeNet.pth', map_location=torch.device('cpu'))
-    pre_sta = torch.load('/root/code_file/MedMamba/preCNN.pth',map_location=torch.device('cpu'))
+    csv_path = os.path.join(CSV_SAVE_DIR, generate_unique_number())
+    with open(csv_file_path, mode="w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(processed_data.keys())
+        writer.writerow(processed_data.values())
+    return {"message": "CSV file created", "file_path": csv_file_path}
+
+    image_path = img_path
+    df_test = pd.read_csv(csv_file_path)
+    df_train = pd.read_csv(csv_file_path)
+    sta = torch.load('MultiMedmambaLargeNet.pth', map_location=torch.device('cpu'))
+    pre_sta = torch.load('preCNN.pth', map_location=torch.device('cpu'))
 
     device = torch.device('cpu')
     # photoDataProcessor
