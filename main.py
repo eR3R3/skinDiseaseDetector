@@ -16,6 +16,9 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from CNN import CNN
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
+import random
+import csv
+
 
 
 class ImageFolderWithName(datasets.ImageFolder):
@@ -29,6 +32,8 @@ class ImageFolderWithName(datasets.ImageFolder):
         filename = os.path.basename(path)
         return sample, target, filename
 
+generated_numbers = set()
+
 def generate_unique_number():
     while True:
         # 生成 10 位的随机数
@@ -37,16 +42,18 @@ def generate_unique_number():
             generated_numbers.add(num)
             return num
 
+
 app = FastAPI()
 
-IMAGE_SAVE_DIR = "/"
-CSV_SAVEDIR = "/"
+IMAGE_SAVE_DIR = "/Users/apple/Documents"
+CSV_SAVE_DIR = "/Users/apple/Documents"
 
 @app.post("/process")
-async def process(req):
-    img = req.img
-    data = img.data
-
+async def process(
+    img: UploadFile = File(...),  # 用于接收文件
+    req = Form(...)
+):
+    data = json.loads(req)
     if data["gender"] == "女":
         data["gender"] = "Female"
     elif data["gender"] == "男":
@@ -60,16 +67,16 @@ async def process(req):
         f.write(await img.read())
     print(f"Image saved at: {img_path}")
 
-    csv_path = os.path.join(CSV_SAVE_DIR, generate_unique_number())
-    with open(csv_file_path, mode="w", newline="", encoding="utf-8") as csvfile:
+    csv_path = os.path.join(CSV_SAVE_DIR, str(generate_unique_number())+".csv")
+    with open(csv_path, mode="w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(data.keys())
         writer.writerow(data.values())
-    return {"message": "CSV file created", "file_path": csv_file_path}
+    # return {"message": "CSV file created", "file_path": csv_path}
 
     image_path = img_path
-    df_test = pd.read_csv(csv_file_path)
-    df_train = pd.read_csv(csv_file_path)
+    df_test = pd.read_csv(csv_path)
+    df_train = pd.read_csv("/Users/apple/Desktop/Python/AI learning/Car_accident_classification/Car_accident_detection/model/skin_disease_detector/skinDiseaseDetectorBackEnd/train(2).csv")
     sta = torch.load('MultiMedmambaLargeNet.pth', map_location=torch.device('cpu'))
     pre_sta = torch.load('preCNN.pth', map_location=torch.device('cpu'))
 
