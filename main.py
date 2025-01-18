@@ -63,8 +63,8 @@ async def process(req):
     csv_path = os.path.join(CSV_SAVE_DIR, generate_unique_number())
     with open(csv_file_path, mode="w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(processed_data.keys())
-        writer.writerow(processed_data.values())
+        writer.writerow(data.keys())
+        writer.writerow(data.values())
     return {"message": "CSV file created", "file_path": csv_file_path}
 
     image_path = img_path
